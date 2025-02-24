@@ -3,135 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stylized Login Page</title>
+  <title>Welkom | Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
-    /* General Styling */
+    :root {
+      --primary-color: #4caf50;
+      --secondary-color: #6dd06d;
+      --accent-color: #f5f5f5;
+    }
+
     body {
       margin: 0;
       font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #d5f5dc, #004b6b);
+      background: linear-gradient(135deg, #81a88b, #f0f8f7);
+      min-height: 100vh;
+      position: relative;
       overflow: hidden;
     }
-    
-    .container-fluid {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .login-border {
-      width: 60%; /* Increase width by 40% */
-      height: 71%; /* Adjust height dynamically (optional) */
-      padding: 40px; /* Add padding to maintain spacing */
-      border: 5px solid #4caf50; /* Keep the border settings */
-      border-radius: 20px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      background: rgba(255, 255, 255, 0.9);
-      overflow: hidden;
-      animation: fadeIn 2s ease-in-out;
-    }
-    
-    .text-light-green {
-      color: #4caf50;
-    }
-    
-    /* Buttons */
-    .btn-light-green {
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
-    
-    .btn-light-green:hover {
-      background-color: #45a049;
-      transform: scale(1.05);
-    }
-    
-    .btn-primary {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .btn-primary:hover {
-      transform: scale(1.05);
-      box-shadow: 0 5px 10px rgba(0, 0, 255, 0.3);
-    }
-    
-    /* Illustration */
-    .illustration {
+
+    .particles {
+      position: absolute;
       width: 100%;
-      max-width: 300px;
-      transition: transform 1.5s ease-in-out;
+      height: 100%;
+      z-index: 0;
     }
-    
-    .animated-image:hover {
-      transform: rotate(10deg) scale(1.1);
+
+    .login-container {
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
-    
-    /* Animations */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: scale(0.8);
-      }
+
+    @keyframes slideUp {
       to {
+        transform: translateY(0);
         opacity: 1;
-        transform: scale(1);
       }
     }
-    
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .login-border {
-        padding: 20px;
-      }
-    
-      .illustration {
-        max-width: 200px;
-      }
+
+    .illustration {
+      transition: transform 0.6s ease;
+    }
+
+    .illustration:hover {
+      transform: translateY(-8px);
+    }
+
+    .form-control {
+      border: none;
+      border-bottom: 2px solid #ddd;
+      border-radius: 0;
+      padding-left: 0;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      box-shadow: none;
+      border-bottom-color: var(--primary-color);
+    }
+
+    .btn-primary-custom {
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .wave {
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="%234caf50" fill-opacity="0.1" d="M0,160L48,138.7C96,117,192,75,288,80C384,85,480,139,576,144C672,149,768,107,864,101.3C960,96,1056,128,1152,138.7C1248,149,1344,139,1392,133.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+      animation: wave 12s infinite linear;
+    }
+
+    @keyframes wave {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
   <div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
-    <div class="login-border p-5">
-      <div class="row">
+    <div class="wave"></div>
+    <div id="particles-js" class="particles"></div>
+    
+    <div class="login-container p-5" style="width: 800px;">
+      <div class="row g-5">
         <!-- Left Section -->
-        <div class="col-md-6 d-flex justify-content-center align-items-center">
-          <img src="v5_5.png" alt="Illustration" class="illustration animated-image">
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+          <img src="v5_5.png" alt="Illustration" class="illustration img-fluid">
         </div>
+        
         <!-- Right Section -->
-        <div class="col-md-6 d-flex flex-column justify-content-center align-items-center">
-          <h2 class="text-center mb-4">Welkom terug!</h2>
-          <!-- Login Form -->
-          <form action="login.php" method="POST" class="w-100">
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="Voer uw email in" required>
+        <div class="col-md-6">
+          <h2 class="mb-4 text-center" style="color: var(--primary-color);">Welkom👋</h2>
+          <form id="loginForm" action="login.php" method="POST" class="w-100">
+            <div class="mb-4">
+              <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
             </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Wachtwoord</label>
-              <input type="password" class="form-control" id="password" name="password" placeholder="Voer uw wachtwoord in" required>
-              <div class="text-end">
-                <a href="#" class="text-light-green small">Wachtwoord vergeten</a>
+            <div class="mb-4">
+              <input type="password" class="form-control" id="password" name="password" placeholder="Wachtwoord" required>
+              <div class="text-end mt-2">
+                <a href="pass_reset.html" class="text-decoration-none" style="color: var(--primary-color);">Wachtwoord vergeten?</a>
               </div>
             </div>
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-light-green">Inloggen</button>
-            </div>
-          </form>
-          <p class="text-center my-3">of ga verder met</p>
-          <div class="d-grid gap-2">
-            <button class="btn btn-primary d-flex align-items-center justify-content-center">
-              <i class="fab fa-google me-2"></i> Inloggen met Google
+            <button type="submit" class="btn btn-primary-custom w-100 text-white">
+              <span class="submit-text">Inloggen</span>
+              <span class="loading d-none"></span>
             </button>
-          </div>
+          </form>
+          
+          
         </div>
       </div>
     </div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    // Particles animation
+    particlesJS('particles-js', {
+      particles: {
+        number: { value: 60 },
+        color: { value: '#4caf50' },
+        opacity: { value: 0.5 },
+        size: { value: 3 },
+        move: { speed: 1 }
+      }
+    });
+
+    // Form submission loader
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      const btn = this.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.querySelector('.submit-text').classList.add('d-none');
+      btn.querySelector('.loading').classList.remove('d-none');
+    });
+
+    // Initial animation
+    document.querySelector('.login-container').style.opacity = '1';
+  </script>
 </body>
 </html>

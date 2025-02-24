@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Maintenance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #8A2BE2, #98FF98);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: absolute;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #8A2BE2;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        /* Loader spin animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="bouncingContainer">
+        <h1>We're Improving Things!</h1>
+        <p>Our website is currently undergoing scheduled maintenance to serve you better. Please check back soon!</p>
+        <div class="loader"></div>
+        <p>Thank you for your patience.</p>
+    </div>
+    <script>
+        const container = document.getElementById("bouncingContainer");
+
+        // Initial position and velocity
+        let posX = 1, posY = 1;
+        let velX = 2, velY = 2;
+        const containerWidth = 640; // Width of the container
+        const containerHeight = 320; // Height of the container
+
+        // Function to update position
+        function moveContainer() {
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // Reverse direction if hitting boundaries
+            if (posX + containerWidth >= screenWidth || posX <= 0) {
+                velX = -velX;
+            }
+            if (posY + containerHeight >= screenHeight || posY <= 0) {
+                velY = -velY;
+            }
+
+            // Update position
+            posX += velX;
+            posY += velY;
+
+            // Apply new position
+            container.style.left = posX + "px";
+            container.style.top = posY + "px";
+
+            // Call the function repeatedly
+            requestAnimationFrame(moveContainer);
+        }
+
+        // Start the animation
+        moveContainer();
+    </script>
+</body>
+</html>

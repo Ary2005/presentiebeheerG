@@ -1,0 +1,17 @@
+[02-Dec-2024 22:10:17 Europe/Berlin] Checking role: admin
+[02-Dec-2024 22:10:17 Europe/Berlin] User found in admin: Array
+(
+    [ID] => 1
+    [Name] => Admin
+    [Password] => 1234
+)
+
+[02-Dec-2024 22:10:17 Europe/Berlin] Password mismatch for email: admin@gmail.com
+[02-Dec-2024 22:10:17 Europe/Berlin] Checking role: director
+[02-Dec-2024 22:10:17 Europe/Berlin] No user found in director for email: admin@gmail.com
+[02-Dec-2024 22:10:17 Europe/Berlin] Checking role: rc
+[02-Dec-2024 22:10:17 Europe/Berlin] SQL prepare error for table rc: 
+[02-Dec-2024 22:10:17 Europe/Berlin] Checking role: teacher
+[02-Dec-2024 22:10:17 Europe/Berlin] SQL prepare error for table teacher: Table 'role_management_db.teacher' doesn't exist
+[02-Dec-2024 22:10:17 Europe/Berlin] Checking role: student
+[02-Dec-2024 22:10:17 Europe/Berlin] SQL prepare error for table student: Table 'role_management_db.student' doesn't exist

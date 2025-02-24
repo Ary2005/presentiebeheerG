@@ -24,19 +24,16 @@ $permissions = htmlspecialchars($_SESSION['admin_permissions']);
             margin: 0;
             padding: 0;
         }
-        
         header {
             background-color: #007bff;
             color: white;
             padding: 1rem;
             text-align: center;
         }
-
         header h1 {
             margin: 0;
             font-size: 2rem;
         }
-
         .container {
             margin: 2rem auto;
             padding: 1.5rem;
@@ -45,21 +42,17 @@ $permissions = htmlspecialchars($_SESSION['admin_permissions']);
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-
         .info {
             text-align: center;
             margin-bottom: 1.5rem;
         }
-
         .info p {
             margin: 0.5rem 0;
         }
-
         .buttons {
             text-align: center;
             margin-bottom: 2rem;
         }
-
         .buttons a {
             text-decoration: none;
             margin: 0 1rem;
@@ -69,39 +62,32 @@ $permissions = htmlspecialchars($_SESSION['admin_permissions']);
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
-
         .buttons a:hover {
             background-color: #0056b3;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
         }
-
         th, td {
             padding: 0.8rem;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
-
         th {
             background-color: #007bff;
             color: white;
         }
-
         tr:hover {
             background-color: #f1f1f1;
         }
-
         footer {
             text-align: center;
             margin-top: 2rem;
             font-size: 0.9rem;
             color: #555;
         }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .buttons a {
@@ -110,39 +96,6 @@ $permissions = htmlspecialchars($_SESSION['admin_permissions']);
             }
         }
     </style>
-    <script>
-         document.addEventListener("DOMContentLoaded", function () {
-    const alertBox = document.getElementById("error-alert");
-    if (alertBox) {
-      // Add a fade-in animation
-      alertBox.style.opacity = "0";
-      setTimeout(() => {
-        alertBox.style.transition = "opacity 1s ease-in-out";
-        alertBox.style.opacity = "1";
-      }, 100);
-
-      // Automatically hide after 5 seconds
-      setTimeout(() => {
-        alertBox.style.transition = "opacity 1s ease-in-out";
-        alertBox.style.opacity = "0";
-        setTimeout(() => alertBox.remove(), 1000);
-      }, 5000);
-    }
-  }); 
-
-        // Add hover effect to rows in the table
-        document.addEventListener('DOMContentLoaded', function () {
-            const rows = document.querySelectorAll('table tr');
-            rows.forEach(row => {
-                row.addEventListener('mouseenter', () => {
-                    row.style.backgroundColor = '#e3f2fd';
-                });
-                row.addEventListener('mouseleave', () => {
-                    row.style.backgroundColor = '';
-                });
-            });
-        });
-    </script>
 </head>
 <body>
     <header>
@@ -150,15 +103,12 @@ $permissions = htmlspecialchars($_SESSION['admin_permissions']);
     </header>
     <div class="container">
         <!-- Alert Message -->
-  <?php if (isset($_SESSION['error'])): ?>
-    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert" id="error-alert">
-      <?php echo $_SESSION['error']; ?>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <?php unset($_SESSION['error']); // Clear the error after displaying ?>
-  <?php endif; ?>
-
-
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert" id="error-alert">
+                <?php echo $_SESSION['error']; ?>
+                <?php unset($_SESSION['error']); // Clear the error after displaying ?>
+            </div>
+        <?php endif; ?>
 
         <div class="info">
             <p><strong>Welcome, <?php echo $admin_name; ?></strong></p>
@@ -178,14 +128,14 @@ $permissions = htmlspecialchars($_SESSION['admin_permissions']);
             </tr>
             <?php
             require 'dbconnect.php';
-            $result = $conn->query("SELECT ID, Name, Email FROM admin UNION SELECT ID, Name, Email FROM director UNION SELECT ID, Name, Email FROM rc UNION SELECT ID, Name, Email FROM teacher UNION SELECT ID, Name, Email FROM student");
+            $result = $conn->query("SELECT ID, Name, Email, Role FROM users");
 
             while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($row['ID']) . "</td>";
                 echo "<td>" . htmlspecialchars($row['Name']) . "</td>";
                 echo "<td>" . htmlspecialchars($row['Email']) . "</td>";
-                echo "<td>" . (strpos($row['Email'], 'admin') !== false ? 'Admin' : 'User') . "</td>";
+                echo "<td>" . htmlspecialchars($row['Role']) . "</td>";
                 echo "</tr>";
             }
             ?>

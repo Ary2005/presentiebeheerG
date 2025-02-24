@@ -1,6 +1,6 @@
 <?php
 $host = "localhost"; // Change to your server address if needed
-$dbname = "presentiebeheer";
+$dbname = "role_management_db";
 $username = "root"; // Default username in XAMPP
 $password = ""; // Default password in XAMPP
 
