@@ -9,10 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $userID = $_SESSION['user_id'];
 
-// Create database connection
-
-
-// Query the assignments for the logged in teacher
+// Haal de opdrachten van de ingelogde docent op
 $sql = "SELECT ta.AssignmentID, s.SubjectName, c.ClassName
         FROM teacher_assignments ta
         JOIN subjects s ON ta.SubjectID = s.SubjectID
@@ -34,21 +31,21 @@ $result = $stmt->get_result();
     </style>
 </head>
 <body>
-    <h1>Welcome, Teacher</h1>
-    <h2>Your Assignments</h2>
+    <h1>Welkom, Docent</h1>
+    <h2>Uw opdrachten</h2>
     <table>
         <tr>
-            <th>Subject</th>
-            <th>Class</th>
-            <th>Actions</th>
+            <th>Vak</th>
+            <th>Klas</th>
+            <th>Acties</th>
         </tr>
         <?php while ($row = $result->fetch_assoc()): ?>
         <tr>
             <td><?php echo htmlspecialchars($row['SubjectName']); ?></td>
             <td><?php echo htmlspecialchars($row['ClassName']); ?></td>
             <td>
-                <!-- Link passes the assignment ID to the attendance page -->
-                <a href="attendance.php?assignment_id=<?php echo $row['AssignmentID']; ?>">Take/View Attendance</a>
+                <!-- Link naar de presentiepagina -->
+                <a href="attendance.php?assignment_id=<?php echo $row['AssignmentID']; ?>">Neem/Bekijk Aanwezigheid</a>
             </td>
         </tr>
         <?php endwhile; ?>

@@ -3,7 +3,7 @@ session_start();
 
 // Database Configuration
 $dbConfig = [
-    'dsn' => "mysql:host=127.0.0.1;dbname=role_management_db;charset=utf8mb4",
+    'dsn' => "mysql:host=127.0.0.1;dbname=role_management_db3;charset=utf8mb4",
     'username' => "root",
     'password' => "",
     'options' => [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
