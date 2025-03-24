@@ -153,6 +153,7 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
                         <!-- Navigation -->
                         <div class="mb-4 d-flex gap-2">
                             <a href="home.html" class="btn btn-outline-primary">Login Scherm</a>
+                            <a href="beheerGebruikers.php" class="btn btn-outline-primary">Gebruikers</a>
                             <a href="beheerStud.php" class="btn btn-outline-primary">Studenten</a>
                             <a href="beheerDocent.php" class="btn btn-outline-primary">Docenten</a>
                             <a href="create_class.php" class="btn btn-outline-primary">Nieuwe Klas</a>
@@ -195,8 +196,17 @@ $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
                                 </div>
                                 
                                 <div class="col-md-3" id="cohortContainer">
-                                    <input type="text" name="cohort" class="form-control" placeholder="Cohort (bijv. 2023-2024)">
-                                </div>
+    <select name="cohort" class="form-control">
+        <option value="">Selecteer Cohort</option>
+        <?php
+        for ($startYear = 2024; $startYear <= 2035; $startYear++) {
+            $endYear = $startYear + 1;
+            $cohortValue = $startYear . "-" . $endYear;
+            echo '<option value="' . $cohortValue . '">' . $cohortValue . '</option>';
+        }
+        ?>
+    </select>
+</div>
                                 
                                 <div class="col-md-3" id="klasContainer">
                                     <select name="klas" class="form-select">

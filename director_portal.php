@@ -4,17 +4,18 @@ session_start();
 require 'dbconnect.php'; // Zorg dat dit bestand de databaseverbinding regelt
 
 // Toegangscontrole: alleen directeuren (RoleID 4) mogen deze pagina zien
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] != 4) {
-    die("Toegang geweigerd. Deze pagina is alleen voor directeuren.");
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], [4, 5])) {
+    die("Toegang geweigerd. Deze pagina is alleen voor de directeur en RC.");
 }
 
 // Filterwaarden uit GET-parameters halen
-$classFilter   = isset($_GET['class_filter']) && $_GET['class_filter'] !== "" ? intval($_GET['class_filter']) : null;
-$subjectFilter = isset($_GET['subject_filter']) && $_GET['subject_filter'] !== "" ? intval($_GET['subject_filter']) : null;
-$studentFilter = isset($_GET['student_filter']) && $_GET['student_filter'] !== "" ? intval($_GET['student_filter']) : null;
-$cohortFilter  = isset($_GET['cohort_filter']) && $_GET['cohort_filter'] !== "" ? intval($_GET['cohort_filter']) : null;
-$periodFilter  = isset($_GET['period_filter']) && $_GET['period_filter'] !== "" ? intval($_GET['period_filter']) : null;
-$statusFilter  = isset($_GET['status_filter']) && $_GET['status_filter'] !== "" ? $_GET['status_filter'] : null;
+$classFilter      = isset($_GET['class_filter']) && $_GET['class_filter'] !== "" ? intval($_GET['class_filter']) : null;
+$subjectFilter    = isset($_GET['subject_filter']) && $_GET['subject_filter'] !== "" ? intval($_GET['subject_filter']) : null;
+$studentFilter    = isset($_GET['student_filter']) && $_GET['student_filter'] !== "" ? intval($_GET['student_filter']) : null;
+$studentSearch    = isset($_GET['student_search']) && $_GET['student_search'] !== "" ? $_GET['student_search'] : null;
+$cohortFilter     = isset($_GET['cohort_filter']) && $_GET['cohort_filter'] !== "" ? intval($_GET['cohort_filter']) : null;
+$periodFilter     = isset($_GET['period_filter']) && $_GET['period_filter'] !== "" ? intval($_GET['period_filter']) : null;
+$statusFilter     = isset($_GET['status_filter']) && $_GET['status_filter'] !== "" ? $_GET['status_filter'] : null;
 
 // Bouw de dynamische WHERE-voorwaarden op voor de gecombineerde query.
 // De kolomnamen komen uit de UNION-subquery (alias 'combined').
@@ -36,6 +37,11 @@ if ($studentFilter !== null) {
     $conditions[] = "UserID = ?";
     $types .= "i";
     $params[] = $studentFilter;
+}
+if ($studentSearch !== null) {
+    $conditions[] = "StudentName LIKE ?";
+    $types .= "s";
+    $params[] = "%" . $studentSearch . "%";
 }
 if ($cohortFilter !== null) {
     $conditions[] = "CohortID = ?";
@@ -101,10 +107,10 @@ $query = "SELECT * FROM (
          l.EindTijd,
          u.ID AS TeacherID,
          u.Name AS TeacherName,
-         NULL AS CohortID,
-         '' AS SchoolYear,
-         NULL AS PeriodID,
-         '' AS PeriodName
+         v.CohortID,
+         co.SchoolYear,
+         v.PeriodID,
+         p.PeriodName
     FROM vrijstelling v
     JOIN teacher_assignments ta ON v.TeacherAssignmentID = ta.AssignmentID
     JOIN classes c ON ta.ClassID = c.ClassID
@@ -112,6 +118,8 @@ $query = "SELECT * FROM (
     JOIN lesuren l ON v.LesuurID = l.LesuurID
     JOIN users u ON ta.TeacherID = u.ID
     JOIN student st ON v.UserID = st.UserID
+    LEFT JOIN cohorts co ON v.CohortID = co.CohortID
+    LEFT JOIN perioden p ON v.PeriodID = p.PeriodID
 ) AS combined";
 
 // Voeg de dynamische filters toe als er voorwaarden zijn
@@ -174,13 +182,13 @@ while ($row = $resultPeriods->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Directeur Portaal - Aanwezigheidsoverzicht</title>
+    <title>Directeur-en RC - Aanwezigheidsoverzicht</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #1a2f4b, #2a5298);
         }
         .navbar {
             box-shadow: 0 2px 4px rgba(0,0,0,.1);
@@ -237,7 +245,7 @@ while ($row = $resultPeriods->fetch_assoc()) {
     <!-- Navigatiebalk -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Directeur Portaal</a>
+            <a class="navbar-brand" href="#">Directeur-en RC Portaal</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Schakel navigatie">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -253,7 +261,7 @@ while ($row = $resultPeriods->fetch_assoc()) {
 
     <!-- Filterformulier -->
     <div class="container mt-4">
-        <h1 class="text-center mb-4">Aanwezigheidsoverzicht</h1>
+    <h1 class="text-center mb-4" style="color: white;">Aanwezigheidsoverzicht</h1>
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">Filteropties</h5>
@@ -291,6 +299,7 @@ while ($row = $resultPeriods->fetch_assoc()) {
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    
                     <div class="col-md-2">
                         <label for="cohort_filter" class="form-label">Schooljaar:</label>
                         <select id="cohort_filter" name="cohort_filter" class="form-select">
@@ -323,6 +332,10 @@ while ($row = $resultPeriods->fetch_assoc()) {
                             <option value="Laat" <?php if ($statusFilter === "Laat") echo 'selected'; ?>>Laat</option>
                             <option value="Vrijstelling" <?php if ($statusFilter === "Vrijstelling") echo 'selected'; ?>>Vrijstelling</option>
                         </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="student_search" class="form-label">Zoek student:</label>
+                        <input type="text" id="student_search" name="student_search" class="form-control" placeholder="Naam invoeren" value="<?php echo ($studentSearch !== null ? htmlspecialchars($studentSearch) : ''); ?>">
                     </div>
                     <div class="col-md-12 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary me-2">Filter toepassen</button>

@@ -33,6 +33,7 @@ $result = $stmt->get_result();
 <body>
     <h1>Welkom, Docent</h1>
     <h2>Uw opdrachten</h2>
+    
     <table>
         <tr>
             <th>Vak</th>

@@ -97,10 +97,22 @@ $classes = $pdo->query("SELECT * FROM classes ORDER BY ClassName")->fetchAll(PDO
                                            class="form-control" placeholder="Bijv. Class 1A" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="cohort" class="form-label">Cohort</label>
-                                    <input type="text" name="cohort" id="cohort" 
-                                           class="form-control" placeholder="Bijv. 2024-2025" required>
-                                </div>
+    <label for="cohort" class="form-label">Cohort</label>
+    <select name="cohort" id="cohort" class="form-control" required>
+        <option value="2024-2025">2024-2025</option>
+        <option value="2025-2026">2025-2026</option>
+        <option value="2026-2027">2026-2027</option>
+        <option value="2027-2028">2027-2028</option>
+        <option value="2028-2029">2028-2029</option>
+        <option value="2029-2030">2029-2030</option>
+        <option value="2030-2031">2030-2031</option>
+        <option value="2031-2032">2031-2032</option>
+        <option value="2032-2033">2032-2033</option>
+        <option value="2033-2034">2033-2034</option>
+        <option value="2034-2035">2034-2035</option>
+        <option value="2035-2036">2035-2036</option>
+    </select>
+</div>
                             </div>
 
                             <div class="action-buttons mt-4 d-flex gap-2">

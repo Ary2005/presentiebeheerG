@@ -3,15 +3,26 @@
 session_start();
 require 'dbconnect.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: home.html");
     exit();
 }
 
-// Get user data from session
+// Get user data
 $userName = htmlspecialchars($_SESSION['user_name']);
 $userRole = htmlspecialchars($_SESSION['user_role']);
+$userID = $_SESSION['user_id'];
+
+// Get teacher assignments
+$sql = "SELECT ta.AssignmentID, s.SubjectName, c.ClassName
+        FROM teacher_assignments ta
+        JOIN subjects s ON ta.SubjectID = s.SubjectID
+        JOIN classes c ON ta.ClassID = c.ClassID
+        WHERE ta.TeacherID = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$assignmentsResult = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -21,7 +32,6 @@ $userRole = htmlspecialchars($_SESSION['user_role']);
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #2e5f89;
@@ -30,10 +40,8 @@ $userRole = htmlspecialchars($_SESSION['user_role']);
             --background: linear-gradient(135deg, #1a2f4b, #2a5298);
         }
 
-        /* Rest of your CSS styles remain unchanged */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: var(--background); color: white; display: flex; min-height: 100vh; overflow-x: hidden; }
-        /* ... (keep all other CSS rules exactly as in your second code example) ... */
 
         .sidebar {
             width: 280px;
@@ -117,49 +125,6 @@ $userRole = htmlspecialchars($_SESSION['user_role']);
             width: 65%;
         }
 
-        .card-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 40px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.1),
-                transparent
-            );
-            transition: left 0.6s;
-        }
-
-        .card:hover::after {
-            left: 100%;
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-        }
-
         .profile {
             display: flex;
             align-items: center;
@@ -212,41 +177,55 @@ $userRole = htmlspecialchars($_SESSION['user_role']);
             z-index: 1;
         }
 
-        .interactive-image-container {
-            position: relative;
+        .assignments-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .interactive-image:hover {
-            transform: scale(1.1) rotate(2deg);
-            filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.4));
-        }
-
-        .attendance-animation {
-            animation: float 5s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(3deg); }
-        }
-
-        .particles {
-            position: absolute;
+        .assignments-table {
             width: 100%;
-            height: 100%;
-            pointer-events: none;
+            border-collapse: collapse;
+            color: white;
         }
 
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            animation: particle-float linear infinite;
+        .assignments-table th {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--secondary);
         }
 
-        @keyframes particle-float {
-            to { transform: translateY(-100vh) rotate(360deg); }
+        .assignments-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        .assignments-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .action-link {
+            color: var(--secondary);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-link:hover {
+            background: rgba(59, 163, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        
 
         .welcome-modal {
             display: none;
@@ -262,18 +241,6 @@ $userRole = htmlspecialchars($_SESSION['user_role']);
             backdrop-filter: blur(10px);
         }
 
-        .welcome-content {
-            background: linear-gradient(135deg, rgba(42, 82, 152, 0.9), rgba(30, 60, 114, 0.9));
-            padding: 50px 80px;
-            border-radius: 30px;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
-            position: relative;
-            transform: scale(0);
-            animation: scaleUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
         @media (max-width: 768px) {
             .sidebar {
                 width: 80px;
@@ -284,27 +251,36 @@ $userRole = htmlspecialchars($_SESSION['user_role']);
             .sidebar i { margin-right: 0; }
             .interactive-image { width: 300px; }
             .welcome-text h1 { font-size: 2rem; }
+            .assignments-container { padding: 15px; }
+            .assignments-table th, .assignments-table td { padding: 10px; }
         }
+
+        .highlight-flash {
+        animation: highlightFade 2s ease-out;
+    }
+
+    @keyframes highlightFade {
+        0% { background: rgba(59, 163, 255, 0.3); }
+        100% { background: transparent; }
+    }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
+    
 
-    <!-- Welcome Modal -->
-    <div class="welcome-modal" id="welcomeModal">
+    <!--<div class="welcome-modal" id="welcomeModal">
         <div class="welcome-content">
             <i class="fas fa-check-circle welcome-icon"></i>
             <h2>Welkom terug! 👋</h2>
             <p>Succesvol ingelogd als <span id="userName"><?= $userName ?></span></p>
         </div>
-    </div>
+    </div>-->
 
     <div class="sidebar">
         <h2>NATIN-MBO</h2>
         <a href="#" class="active"><i class="fas fa-home"></i><span>Dashboard</span></a>
-        <a href="teacher_dashboard.php"><i class="fas fa-book"></i><span>Mijn vakken</span></a>
-        <a href="#"><i class="fas fa-users"></i><span>Mijn klassen</span></a>
-        <a href="presentieLijst.php"><i class="fas fa-list"></i><span>Presentielijst</span></a>
+        <!--<a href="teacher_dashboard.php"><i class="fas fa-book"></i><span>Vakken en Klassen</span></a>-->
+        <a ><i class="fas fa-list"></i><span>Presentielijst</span></a>
         <p style="text-align: center;"><a href="logout.php">Logout</a></p>
         <div class="profile">
             <img src="https://via.placeholder.com/50" alt="Profielfoto">
@@ -330,59 +306,37 @@ $userRole = htmlspecialchars($_SESSION['user_role']);
                      onclick="animateImage(this)">
             </div>
         </div>
-        <div class="card-container">
-            <div class="card">
-                <i class="fas fa-chart-line fa-3x" style="color: #4CAF50;"></i>
-                <h3>Afwezigen Vorige Week</h3>
-                <canvas id="absenceChart"></canvas>
-            </div>
-            <div class="card">
-                <i class="fas fa-exclamation-triangle fa-3x" style="color: #ff4757;"></i>
-                <h3>Gevaarzone (80%)</h3>
-                <p class="stat-number">4</p>
-            </div>
-            <div class="card">
-                <i class="fas fa-calendar-alt fa-3x" style="color: #3ba3ff;"></i>
-                <h3>Afwezigen Deze Maand</h3>
-                <p class="stat-number">16</p>
-            </div>
+
+        <div class="assignments-container">
+            <h2 style="margin-bottom: 25px; color: var(--secondary);">Uw Opdrachten</h2>
+            <table class="assignments-table">
+                <thead>
+                    <tr>
+                        <th>Vak</th>
+                        <th>Klas</th>
+                        <th>Acties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $assignmentsResult->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['SubjectName']) ?></td>
+                        <td><?= htmlspecialchars($row['ClassName']) ?></td>
+                        <td>
+                            <a href="attendance.php?assignment_id=<?= $row['AssignmentID'] ?>" class="action-link">
+                                <i class="fas fa-clipboard-list"></i>
+                                Neem/Bekijk Aanwezigheid
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Particle animation and other JS remains unchanged
-        function createParticles() {
-            const particles = document.getElementById('particles');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.width = particle.style.height = Math.random() * 3 + 2 + 'px';
-                particle.style.animationDuration = Math.random() * 3 + 2 + 's';
-                particles.appendChild(particle);
-            }
-        }
-        createParticles();
-
-        // Enhanced chart
-        new Chart(document.getElementById('absenceChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Ziek', 'Te laat', 'Afwezig', 'Vakantie'],
-                datasets: [{
-                    data: [5, 3, 2, 4],
-                    backgroundColor: ['#4CAF50', '#FFC107', '#FF4757', '#3ba3ff'],
-                    borderWidth: 0,
-                }]
-            },
-            options: {
-                cutout: '70%',
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: { bodyFont: { family: 'Poppins' } }
-                }
-            }
-        });
+        
 
         // Modal animation
         document.addEventListener('DOMContentLoaded', () => {
@@ -395,14 +349,11 @@ $userRole = htmlspecialchars($_SESSION['user_role']);
             }, 3500);
         });
 
-        // Dynamic background particles
-        document.addEventListener('mousemove', (e) => {
-            const particles = document.querySelectorAll('.particle');
-            particles.forEach(particle => {
-                const speed = parseFloat(particle.style.animationDuration);
-                particle.style.transform = `translate(${e.clientX * 0.02}px, ${e.clientY * 0.02}px)`;
-            });
-        });
+        
     </script>
 </body>
 </html>
+<?php
+$stmt->close();
+$conn->close();
+?>

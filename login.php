@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     // Redirect based on the role
                     switch ($row['RoleID']) {
                         case '5':
-                            header("Location: maintenence.html");
+                            header("Location: director_portal.php");
                             break;
                         case '2':
                             header("Location: dashboard.php");
@@ -115,3 +115,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit();
 }
 ?>
+
